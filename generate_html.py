@@ -7,6 +7,15 @@ BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
 PHOTO_DIR = os.path.join(BASE_DIR, "menu_screen")
 PUBLIC_DIR = os.path.join(BASE_DIR, "public")
 OUT        = os.path.join(PUBLIC_DIR, "index.html")
+LOGO_FILE  = os.path.join(BASE_DIR, "freshfish_logo.png")
+
+def b64_image(path):
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            data = f.read()
+        return "data:image/png;base64," + base64.b64encode(data).decode()
+    print(f"  MISSING: {path}")
+    return ""
 
 def b64png(filename):
     path = os.path.join(PHOTO_DIR, filename)
@@ -72,6 +81,8 @@ photo_files = {
 P = {name: "" for name in names}
 for key, filename in photo_files.items():
     P[key] = b64png(filename)
+
+LOGO = b64_image(LOGO_FILE)
 
 WA = "https://api.whatsapp.com/send/?phone=77075832489&text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%0A%D0%9F%D0%B8%D1%88%D1%83+%D0%B8%D0%B7+QR-%D0%BC%D0%B5%D0%BD%D1%8E+Fresh+Fish%21&type=phone_number&app_absent=0"
 
@@ -169,9 +180,9 @@ html = f"""<!DOCTYPE html>
     /* HERO */
     .hero{{background:linear-gradient(145deg,var(--deep) 0%,var(--mid) 55%,var(--bright) 100%);padding:36px 20px 28px;text-align:center;position:relative;overflow:hidden}}
     .hero::before{{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='rgba(255,255,255,0.04)' d='M0,160L48,138.7C96,117,192,75,288,80C384,85,480,139,576,149.3C672,160,768,128,864,122.7C960,117,1056,139,1152,144C1248,149,1344,139,1392,133.3L1440,128V320H0Z'/%3E%3C/svg%3E") center/cover no-repeat}}
-    .logo-wrap{{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}}
-    .logo-fish{{font-size:40px;filter:drop-shadow(0 2px 8px rgba(0,180,216,.6));animation:swim 4s ease-in-out infinite}}
-    @keyframes swim{{0%,100%{{transform:translateY(0) rotate(-3deg)}}50%{{transform:translateY(-6px) rotate(3deg)}}}}
+    .logo-wrap{{display:flex;align-items:center;justify-content:center;margin-bottom:10px}}
+    .brand-logo-frame{{width:138px;height:138px;border-radius:50%;overflow:hidden;background:#eaf6ff;border:3px solid rgba(255,255,255,.75);box-shadow:0 8px 28px rgba(0,0,0,.28),0 0 0 6px rgba(144,224,239,.14)}}
+    .brand-logo{{width:100%;height:100%;object-fit:cover;object-position:center;display:block}}
     .brand-name{{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:#fff;letter-spacing:1px;text-shadow:0 2px 12px rgba(0,0,0,.3)}}
     .brand-sub{{font-size:13px;font-weight:600;color:var(--foam);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}}
     .hero-badge{{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(8px);border-radius:30px;padding:6px 16px;font-size:12px;color:var(--foam);font-weight:600}}
@@ -311,10 +322,11 @@ html = f"""<!DOCTYPE html>
 <!-- HERO -->
 <header class="hero">
   <div class="logo-wrap">
-    <span class="logo-fish">🐟</span>
-    <span class="brand-name">Fresh Fish</span>
-    <span class="logo-fish" style="animation-delay:-2s">🦐</span>
+    <div class="brand-logo-frame">
+      <img class="brand-logo" src="{LOGO}" alt="Fresh Fish" width="138" height="138">
+    </div>
   </div>
+  <div class="brand-name">Fresh Fish</div>
   <p class="brand-sub">Рыбный ресторан · Қарағанды</p>
   <div class="hero-badge"><span>🌊</span> Свежая рыба каждый день</div>
   <div class="social-strip">
