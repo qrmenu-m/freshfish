@@ -13,16 +13,26 @@ def b64_image(path):
     if os.path.exists(path):
         with open(path, "rb") as f:
             data = f.read()
-        return "data:image/png;base64," + base64.b64encode(data).decode()
+        return f"data:{mime_for(path)};base64," + base64.b64encode(data).decode()
     print(f"  MISSING: {path}")
     return ""
+
+def mime_for(path):
+    ext = os.path.splitext(path)[1].lower()
+    return {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+    }.get(ext, "application/octet-stream")
 
 def b64png(filename):
     path = os.path.join(PHOTO_DIR, filename)
     if os.path.exists(path):
         with open(path, "rb") as f:
             data = f.read()
-        src = "data:image/png;base64," + base64.b64encode(data).decode()
+        src = f"data:{mime_for(path)};base64," + base64.b64encode(data).decode()
         print(f"  {filename}: {len(src)//1024} KB")
         return src
     print(f"  MISSING: {filename}")
@@ -33,12 +43,32 @@ def img_tag(src, alt=""):
         return f'<img src="{src}" alt="{alt}" loading="lazy">'
     return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;">🐟</div>'
 
+def kz_line(text, extra_style=""):
+    if not text:
+        return ""
+    style = f' style="{extra_style}"' if extra_style else ""
+    return f'<div class="fish-kz"{style}>{text}</div>'
+
+def price_tags(prices):
+    tags = []
+    for w, p in prices:
+        weight = f'<span class="pw">{w}</span>' if w else ""
+        tags.append(f'<div class="pt">{weight}<span class="pa">{p}</span><span class="pu">тг</span></div>')
+    return "".join(tags)
+
 print("Loading PNGs...")
 names = [
     "sazan","sudak","beliy_amur","som","karas","bersh",
     "lukovye_kolca","ovoshi_gril","krevetki","krilishki","krilishki_teri",
     "acuchuk","svej_salat","grecheskiy","hrust_baklaj",
     "morskoy_okun","forel_gril","dorado","semga_ris","steyk_semga",
+    "karas_red","sudak_red","dorado_salad",
+    "pizza_margarita","pizza_pepperoni","pizza_mushrooms","pizza_chicken","pizza_salmon",
+    "hachapuri","flatbread","tom_yam","uha",
+    "lemonade_watermelon_pomegranate","lemonade_orange","lemonade_kiwi_lime",
+    "lemonade_strawberry_lime","lemonade_mango_passion","lemonade_cherry",
+    "lemonade_berry","lemonade_kiwi_apple","lemonade_strawberry_mojito",
+    "lemonade_mojito","lemonade_pomegranate",
     "combo_klassika","combo_lyuks","combo_shedevr",
     "set_mini","set_delikates","set_daryi","set_simfoniya","set_freshfish",
     "fri","derevenskiy","shar_kartof","naggetsyi","syrn_palochki",
@@ -55,6 +85,29 @@ photo_files = {
     "dorado": "дорадо.png",
     "semga_ris": "семга с рисом и салатом.png",
     "steyk_semga": "стейк из семги с рисом.png",
+    "karas_red": "new_items/crucian_red_sauce.webp",
+    "sudak_red": "new_items/pike_perch_red_sauce.webp",
+    "dorado_salad": "new_items/dorado_grill_salad.webp",
+    "pizza_margarita": "new_items/pizza_margarita.webp",
+    "pizza_pepperoni": "new_items/pizza_pepperoni.webp",
+    "pizza_mushrooms": "new_items/pizza_mushrooms.webp",
+    "pizza_chicken": "new_items/pizza_chicken.webp",
+    "pizza_salmon": "new_items/pizza_salmon.webp",
+    "hachapuri": "new_items/hachapuri.webp",
+    "flatbread": "new_items/flatbread.webp",
+    "tom_yam": "new_items/tom_yam.webp",
+    "uha": "new_items/uha.webp",
+    "lemonade_watermelon_pomegranate": "new_items/lemonade_watermelon_pomegranate.webp",
+    "lemonade_orange": "new_items/lemonade_orange.webp",
+    "lemonade_kiwi_lime": "new_items/lemonade_kiwi_lime.webp",
+    "lemonade_strawberry_lime": "new_items/lemonade_strawberry_lime.webp",
+    "lemonade_mango_passion": "new_items/lemonade_mango_passion.webp",
+    "lemonade_cherry": "new_items/lemonade_cherry.webp",
+    "lemonade_berry": "new_items/lemonade_berry.webp",
+    "lemonade_kiwi_apple": "new_items/lemonade_kiwi_apple.webp",
+    "lemonade_strawberry_mojito": "new_items/lemonade_strawberry_mojito.webp",
+    "lemonade_mojito": "new_items/lemonade_mojito.webp",
+    "lemonade_pomegranate": "new_items/lemonade_pomegranate.webp",
     "krilishki": "крылышки.png",
     "krilishki_teri": "крылышки в соусе терияки.png",
     "acuchuk": "ачучук.png",
@@ -89,17 +142,13 @@ WA = "https://api.whatsapp.com/send/?phone=77075832489&text=%D0%97%D0%B4%D1%80%D
 def fish_card(card_id, photo_key, name_ru, name_kz, prices):
     """Horizontal card for fish: photo left, info right."""
     img = img_tag(P[photo_key], name_ru)
-    price_tags = "".join(
-        f'<div class="pt"><span class="pw">{w}</span><span class="pa">{p}</span><span class="pu">тг</span></div>'
-        for w, p in prices
-    )
     return f"""
   <div class="card card-fish" id="{card_id}">
     <div class="fish-photo">{img}</div>
     <div class="fish-body">
       <div class="fish-name">{name_ru}</div>
-      <div class="fish-kz">{name_kz}</div>
-      <div class="price-row">{price_tags}</div>
+      {kz_line(name_kz)}
+      <div class="price-row">{price_tags(prices)}</div>
     </div>
   </div>"""
 
@@ -111,10 +160,22 @@ def simple_card(card_id, photo_key, name_ru, name_kz, desc, price):
       <div class="simple-photo">{img}</div>
       <div class="simple-info">
         <div class="fish-name">{name_ru}</div>
-        <div class="fish-kz">{name_kz}</div>
+        {kz_line(name_kz)}
         {f'<div class="desc">{desc}</div>' if desc else ''}
       </div>
       <div class="price-single">{price}<span style="font-size:12px;font-weight:600"> тг</span></div>
+    </div>
+  </div>"""
+
+def price_card(card_id, name_ru, desc, prices):
+    return f"""
+  <div class="card card-price" id="{card_id}">
+    <div class="price-card-body">
+      <div class="price-card-info">
+        <div class="fish-name">{name_ru}</div>
+        {f'<div class="desc">{desc}</div>' if desc else ''}
+      </div>
+      <div class="price-row price-row-compact">{price_tags(prices)}</div>
     </div>
   </div>"""
 
@@ -125,7 +186,7 @@ def combo_card(card_id, photo_key, name_ru, name_kz, price, col1, col2):
     <div class="combo-photo">{img}</div>
     <div class="combo-header">
       <div class="combo-name">{name_ru}</div>
-      <div class="fish-kz" style="color:var(--foam)">{name_kz}</div>
+      {kz_line(name_kz, "color:var(--foam)")}
       <div class="combo-price">{price} тг</div>
     </div>
     <div class="combo-body">
@@ -143,7 +204,7 @@ def set_card(card_id, photo_key, name_ru, name_kz, persons, price, col1, col2):
     <div class="set-photo">{img}</div>
     <div class="set-header">
       <div class="combo-name">{name_ru}</div>
-      <div class="fish-kz" style="color:var(--foam)">{name_kz}</div>
+      {kz_line(name_kz, "color:var(--foam)")}
       <div class="set-persons">👥 {persons}</div>
       <div class="set-price">{price} тг</div>
     </div>
@@ -246,6 +307,14 @@ html = f"""<!DOCTYPE html>
     .simple-info{{flex:1}}
     .price-single{{font-size:19px;font-weight:900;color:var(--bright);white-space:nowrap;text-align:right}}
 
+    /* PRICE-ONLY CARD */
+    .card-price{{overflow:visible}}
+    .price-card-body{{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px}}
+    .price-card-info{{flex:1;min-width:0}}
+    .price-row-compact{{justify-content:flex-end;flex-shrink:0}}
+    .price-row-compact .pt{{min-width:64px;padding:5px 10px}}
+    .price-row-compact .pa{{font-size:16px}}
+
     /* COMBO CARD */
     .card-combo,.card-set{{padding:0}}
     .combo-photo,.set-photo{{
@@ -340,11 +409,16 @@ html = f"""<!DOCTYPE html>
 <nav class="nav-wrap">
   <div class="nav-scroll">
     <button class="nav-btn active" onclick="goTo('hot')"     id="nav-hot">🔥 Горячие</button>
+    <button class="nav-btn"        onclick="goTo('pizza')"   id="nav-pizza">🍕 Пицца / Выпечка</button>
+    <button class="nav-btn"        onclick="goTo('soups')"   id="nav-soups">🍲 Супы</button>
     <button class="nav-btn"        onclick="goTo('wings')"   id="nav-wings">🍗 Крылышки</button>
     <button class="nav-btn"        onclick="goTo('salads')"  id="nav-salads">🥗 Салаты</button>
     <button class="nav-btn"        onclick="goTo('combos')"  id="nav-combos">🎁 Комбо</button>
     <button class="nav-btn"        onclick="goTo('sets')"    id="nav-sets">🦞 Сеты</button>
     <button class="nav-btn"        onclick="goTo('sides')"   id="nav-sides">🍟 Гарниры</button>
+    <button class="nav-btn"        onclick="goTo('lemonades')" id="nav-lemonades">🍋 Лимонады</button>
+    <button class="nav-btn"        onclick="goTo('tea')"     id="nav-tea">🍵 Чай</button>
+    <button class="nav-btn"        onclick="goTo('drinks')"  id="nav-drinks">🥤 Напитки</button>
     <button class="nav-btn"        onclick="goTo('reviews')" id="nav-reviews">⭐ Отзывы</button>
     <button class="nav-btn"        onclick="goTo('contacts')"id="nav-contacts">📍 Контакты</button>
   </div>
@@ -359,7 +433,7 @@ html = f"""<!DOCTYPE html>
     <div><div class="section-title">Горячие блюда</div><div class="section-kz">ЫСТЫҚ ТАҒАМДАР</div></div>
   </div>
   <div class="price-notice">⚖️ Цена зависит от веса рыбы (0.5 кг или 1 кг)</div>
-  {fish_card("c-sazan",  "sazan",       "Сазан",                "Сазан балығы",        [("0.5 кг","3 100"),("1 кг","6 000")])}
+  {fish_card("c-sazan",  "sazan",       "Сазан",                "Сазан балығы",        [("0.5 кг","3 650"),("1 кг","6 500")])}
   {fish_card("c-sudak",  "sudak",       "Судак",                "Кёксерке",            [("0.5 кг","3 350"),("1 кг","6 500")])}
   {fish_card("c-som",    "beliy_amur",  "Белый амур",           "Ақ амур",             [("0.5 кг","3 500"),("1 кг","6 800")])}
   {fish_card("c-som2",   "som",         "Сом",                  "Жайын",               [("0.5 кг","3 100"),("1 кг","6 000")])}
@@ -368,8 +442,37 @@ html = f"""<!DOCTYPE html>
   {fish_card("c-okun",   "morskoy_okun","Морской окунь",        "Теңіз алабұғысы",     [("0.4 кг","3 500"),("0.8 кг","6 800")])}
   {fish_card("c-forel",  "forel_gril",  "Форель на гриле",      "Грильдегі Ханбалық",  [("0.4 кг","3 800"),("0.8 кг","7 500")])}
   {fish_card("c-dorado", "dorado",      "Дорадо",               "Дорадо",              [("0.4 кг","5 600"),("0.8 кг","10 900")])}
+  {fish_card("c-karas-red", "karas_red", "Карась в красном соусе", "",                  [("0.5 кг","2 650"),("1 кг","4 500")])}
+  {fish_card("c-sudak-red", "sudak_red", "Судак в красном соусе", "",                   [("0.5 кг","3 850"),("1 кг","7 000")])}
+  {fish_card("c-dorado-salad", "dorado_salad", "Дорадо на гриле с салатом", "",        [("0.4 кг","6 200")])}
   {fish_card("c-semga",  "semga_ris",   "Сёмга с рисом и салатом","Аксерке күріш",    [("250 г","3 300")])}
   {fish_card("c-steyk",  "steyk_semga", "Стейк из сёмги с рисом","Аксерке стейкі",    [("0.4 кг","5 800")])}
+</section>
+
+<!-- ═══ ПИЦЦА / ВЫПЕЧКА ═══ -->
+<section class="section" id="pizza">
+  <div class="section-header">
+    <div class="section-icon">🍕</div>
+    <div><div class="section-title">Пицца / Выпечка</div><div class="section-kz">ПИЦЦА ЖӘНЕ НАН ӨНІМДЕРІ</div></div>
+  </div>
+  {simple_card("c-pizza-margarita", "pizza_margarita", "Пицца Маргарита", "", "", "2 000")}
+  {simple_card("c-pizza-pepperoni", "pizza_pepperoni", "Пицца Пеперони", "", "", "2 200")}
+  {simple_card("c-pizza-mushrooms", "pizza_mushrooms", "Пицца с грибами", "", "", "2 200")}
+  {simple_card("c-pizza-chicken", "pizza_chicken", "Пицца с курицей", "", "", "2 200")}
+  {simple_card("c-pizza-salmon", "pizza_salmon", "Пицца с сёмгой", "", "", "2 400")}
+  {simple_card("c-hachapuri", "hachapuri", "Хачапури", "", "", "2 290")}
+  {simple_card("c-flatbread", "flatbread", "Лепёшки", "", "", "300")}
+</section>
+
+<!-- ═══ СУПЫ ═══ -->
+<section class="section" id="soups">
+  <div class="section-header">
+    <div class="section-icon">🍲</div>
+    <div><div class="section-title">Супы</div><div class="section-kz">СОРПАЛАР</div></div>
+  </div>
+  {price_card("c-seafood-soup", "Суп из морепродуктов", "", [("", "2 450")])}
+  {simple_card("c-tom-yam", "tom_yam", "Том-ям", "", "", "2 600")}
+  {simple_card("c-uha", "uha", "Уха", "", "", "1 700")}
 </section>
 
 <!-- ═══ КРЫЛЫШКИ ═══ -->
@@ -456,6 +559,55 @@ html = f"""<!DOCTYPE html>
   {simple_card("c-shar",   "shar_kartof",   "Картофельные шарики",     "Картоп шарлары","250 г","850")}
   {simple_card("c-nagg",   "naggetsyi",     "Наггетсы",                "Наггетсылер","6 шт","800")}
   {simple_card("c-syr",    "syrn_palochki", "Сырные палочки",          "Ірімшік таяқшалары","6 шт","800")}
+</section>
+
+<!-- ═══ ЛИМОНАДЫ ═══ -->
+<section class="section" id="lemonades">
+  <div class="section-header">
+    <div class="section-icon">🍋</div>
+    <div><div class="section-title">Лимонады</div><div class="section-kz">ЛИМОНАДТАР</div></div>
+  </div>
+  {simple_card("c-lem-watermelon-pomegranate", "lemonade_watermelon_pomegranate", "Лимонад Арбуз и гранат", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-orange", "lemonade_orange", "Лимонад Апельсин", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-kiwi-lime", "lemonade_kiwi_lime", "Лимонад Киви лайм", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-strawberry-lime", "lemonade_strawberry_lime", "Лимонад Клубника лайм", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-mango-passion", "lemonade_mango_passion", "Лимонад Манго маракуйя", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-cherry", "lemonade_cherry", "Лимонад Вишня", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-berry", "lemonade_berry", "Лимонад Ягодный", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-kiwi-apple", "lemonade_kiwi_apple", "Лимонад Киви яблоко", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-strawberry-mojito", "lemonade_strawberry_mojito", "Лимонад Клубника мохито", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-mojito", "lemonade_mojito", "Лимонад Мохито", "", "1,2 л", "2 000")}
+  {simple_card("c-lem-pomegranate", "lemonade_pomegranate", "Лимонад Гранат", "", "1,2 л", "2 000")}
+</section>
+
+<!-- ═══ ЧАЙ ═══ -->
+<section class="section" id="tea">
+  <div class="section-header">
+    <div class="section-icon">🍵</div>
+    <div><div class="section-title">Чай</div><div class="section-kz">ШАЙ</div></div>
+  </div>
+  {price_card("c-tea-tashkent", "Чай Ташкентский", "", [("", "1 500")])}
+  {price_card("c-tea-black-1l", "Чай чёрный", "", [("1 л", "900"), ("0,35 л", "300")])}
+  {price_card("c-tea-green-1l", "Чай зелёный", "", [("1 л", "900"), ("0,35 л", "300")])}
+  {price_card("c-tea-milk", "Чай чёрный с молоком", "", [("", "1 700")])}
+  {price_card("c-tea-berry", "Чай ягодный", "", [("", "1 700")])}
+  {price_card("c-tea-ginger", "Чай имбирный", "", [("", "1 700")])}
+  {price_card("c-tea-moroccan", "Чай марокканский", "", [("", "1 700")])}
+</section>
+
+<!-- ═══ НАПИТКИ ═══ -->
+<section class="section" id="drinks">
+  <div class="section-header">
+    <div class="section-icon">🥤</div>
+    <div><div class="section-title">Напитки</div><div class="section-kz">СУСЫНДАР</div></div>
+  </div>
+  {price_card("c-cola", "Кола", "", [("", "800")])}
+  {price_card("c-pepsi", "Пепси", "", [("", "800")])}
+  {price_card("c-fanta", "Фанта", "", [("", "800")])}
+  {price_card("c-sprite", "Спрайт", "", [("", "800")])}
+  {price_card("c-juice", "Сок", "", [("1 л", "1 100"), ("0,25 л", "400")])}
+  {price_card("c-water", "Вода без газа", "", [("1 л", "600"), ("0,5 л", "300")])}
+  {price_card("c-saryagash", "Сарыагаш", "1,2 л", [("", "650")])}
 </section>
 
 <!-- ═══ ОТЗЫВЫ ═══ -->
@@ -548,7 +700,7 @@ html = f"""<!DOCTYPE html>
 
 <script>
   function goTo(id) {{ document.getElementById(id).scrollIntoView({{behavior:'smooth',block:'start'}}); }}
-  const secs = ['hot','wings','salads','combos','sets','sides','reviews','contacts'];
+  const secs = ['hot','pizza','soups','wings','salads','combos','sets','sides','lemonades','tea','drinks','reviews','contacts'];
   const btns = document.querySelectorAll('.nav-btn');
   function setActive(id) {{ btns.forEach(b=>b.classList.remove('active')); const i=secs.indexOf(id); if(i>=0) btns[i].classList.add('active'); }}
   const obs = new IntersectionObserver(entries=>{{
