@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fresh Fish — резюме QR-меню для клиента</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    :root {
+      --deep: #073763;
+      --blue: #0f69b4;
+      --cyan: #00a8d8;
+      --soft: #eef8ff;
+      --gold: #f6bd42;
+      --ink: #142033;
+      --muted: #5d6b7c;
+      --line: #d9eaf6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.45;
+    }
+
+    .page {
+      min-height: 269mm;
+      padding: 0;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    .cover {
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(0, 168, 216, .24), transparent 26%),
+        radial-gradient(circle at 10% 85%, rgba(246, 189, 66, .20), transparent 24%),
+        linear-gradient(135deg, #073763 0%, #0f69b4 58%, #00a8d8 100%);
+      color: #fff;
+      padding: 26px;
+      margin-bottom: 18px;
+      position: relative;
+      box-shadow: 0 14px 36px rgba(7, 55, 99, .18);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      width: 86px;
+      height: 86px;
+      border-radius: 24px;
+      background: #fff;
+      object-fit: contain;
+      padding: 8px;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, .18);
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      opacity: .82;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.05;
+      letter-spacing: -.6px;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      font-size: 15px;
+      opacity: .92;
+      max-width: 620px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, .14);
+      border: 1px solid rgba(255, 255, 255, .28);
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      background: #fff;
+      box-shadow: 0 7px 20px rgba(15, 105, 180, .07);
+    }
+
+    .card.soft {
+      background: var(--soft);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+      color: var(--deep);
+      letter-spacing: -.2px;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 15px;
+      color: var(--deep);
+    }
+
+    p {
+      margin: 0 0 10px;
+      font-size: 13px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 0 0 8px;
+      font-size: 13px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .stat {
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #f5fbff);
+      border: 1px solid var(--line);
+      padding: 13px 10px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--blue);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      background: #f2f8fc;
+      border: 1px solid var(--line);
+      padding: 7px 10px;
+      color: var(--deep);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .note {
+      border-left: 4px solid var(--gold);
+      background: #fff8e8;
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: #4b3a12;
+      font-size: 12.5px;
+      margin-top: 14px;
+    }
+
+    .footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 9px;
+      font-size: 11px;
+    }
+
+    .message {
+      border-radius: 22px;
+      background: linear-gradient(180deg, #ffffff, #f6fbff);
+      border: 1px solid var(--line);
+      padding: 22px;
+      box-shadow: 0 10px 26px rgba(15, 105, 180, .08);
+    }
+
+    .message p {
+      font-size: 14px;
+      margin-bottom: 11px;
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .check {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 12px;
+      background: #fff;
+      font-size: 12.5px;
+    }
+
+    .check strong {
+      color: var(--deep);
+    }
+
+    .small {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="cover">
+      <div class="brand">
+        <img class="logo" src="freshfish_logo.png" alt="Fresh Fish logo">
+        <div>
+          <p class="eyebrow">Клиентское резюме проекта</p>
+          <h1>QR-меню Fresh Fish</h1>
+          <p class="subtitle">Мобильный сайт-меню для рыбного ресторана в Караганде: быстрый выбор блюд, понятные цены, фото, контакты и переходы в WhatsApp, TikTok и 2ГИС.</p>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">Mobile-first</span>
+        <span class="badge">Русский + қазақша</span>
+        <span class="badge">Фото блюд</span>
+        <span class="badge">Готово к Cloudflare</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Главная идея сайта</h2>
+        <p>Сайт заменяет бумажное меню и открывается по QR-коду прямо на телефоне гостя. Визуально он сделан в морской стилистике Fresh Fish: фирменный логотип, синие оттенки, карточки блюд и быстрые кнопки связи.</p>
+        <p>Гость видит меню без лишних переходов: выбирает раздел, смотрит фото, цену, вес/количество и сразу может написать или позвонить ресторану.</p>
+      </div>
+
+      <div class="card soft">
+        <h2>Что уже реализовано</h2>
+        <ul>
+          <li>Адаптивная версия под смартфоны.</li>
+          <li>Разделы меню: горячие блюда, крылышки, салаты, комбо, сеты, гарниры, отзывы и контакты.</li>
+          <li>Карточки блюд с ценами, весом и названиями на русском и казахском.</li>
+          <li>Экспериментальные фото блюд из текущего набора.</li>
+          <li>Кнопки WhatsApp, звонка, TikTok и 2ГИС.</li>
+          <li>Подготовка к публикации на Cloudflare.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <strong>8</strong>
+        <span>разделов сайта</span>
+      </div>
+      <div class="stat">
+        <strong>33</strong>
+        <span>карточки меню</span>
+      </div>
+      <div class="stat">
+        <strong>2</strong>
+        <span>языка в меню</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Основные преимущества для ресторана</h2>
+        <ul>
+          <li><strong>Удобнее гостю:</strong> меню открывается быстро и понятно на телефоне.</li>
+          <li><strong>Меньше ручной работы:</strong> цены, фото и позиции можно обновлять централизованно.</li>
+          <li><strong>Больше заявок:</strong> WhatsApp и звонок доступны с любой части сайта через быстрые кнопки.</li>
+          <li><strong>Сильнее доверие:</strong> блок видеоотзывов ведёт гостей в TikTok ресторана.</li>
+          <li><strong>Готовность к запуску:</strong> структура проекта настроена под деплой, чтобы не было ошибки с отсутствием папки статических файлов.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Разделы меню</h2>
+        <div class="pill-list">
+          <span class="pill">🔥 Горячие блюда</span>
+          <span class="pill">🍗 Крылышки</span>
+          <span class="pill">🥗 Салаты</span>
+          <span class="pill">🎁 Комбо</span>
+          <span class="pill">🦞 Сеты</span>
+          <span class="pill">🍟 Гарниры</span>
+          <span class="pill">⭐ Отзывы</span>
+          <span class="pill">📍 Контакты</span>
+        </div>
+        <div class="note">
+          Сейчас фотографии используются как тестовые. После согласования можно заменить их на финальные ресторанные фото без переделки структуры сайта.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Fresh Fish QR-меню · резюме для клиента</span>
+      <span>27.06.2026</span>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="cover" style="padding: 22px; margin-bottom: 16px;">
+      <p class="eyebrow">Готовый текст для отправки клиенту</p>
+      <h1 style="font-size: 28px;">Сообщение-презентация</h1>
+      <p class="subtitle">Можно отправить как есть или использовать как основу для устной презентации.</p>
+    </div>
+
+    <div class="message">
+      <p>Здравствуйте! Подготовили первую версию QR-меню для Fresh Fish.</p>
+      <p>Это удобный мобильный сайт, который гость открывает по QR-коду за столом или по ссылке. Внутри меню уже собраны основные разделы: горячие блюда, крылышки, салаты, комбо, сеты, гарниры, отзывы и контакты.</p>
+      <p>Каждая позиция оформлена в виде аккуратной карточки: есть название на русском и казахском, цена, вес или количество, а также фотография блюда. Навигация сделана простой — гость может быстро перейти к нужному разделу и не листать всё меню вручную.</p>
+      <p>Также добавлены быстрые действия: написать в WhatsApp, позвонить, перейти в TikTok с отзывами и открыть Fresh Fish в 2ГИС. Эти кнопки помогают гостю сразу связаться с рестораном или посмотреть социальные доказательства.</p>
+      <p>Дизайн выполнен в фирменной морской стилистике: логотип Fresh Fish, синие оттенки, чистые карточки, визуальный акцент на свежей рыбе и сетах. Сайт адаптирован под телефон, так как именно так чаще всего открывают QR-меню.</p>
+      <p>Текущие фотографии — экспериментальные, чтобы посмотреть, как они смотрятся в интерфейсе. После согласования можно заменить их на финальные фото, а также быстро поправить цены, составы, режим работы и контакты.</p>
+      <p>Технически проект подготовлен к публикации: сайт собран как статическое меню и настроен для деплоя на Cloudflare, чтобы при публикации не возникала ошибка с отсутствием папки статических файлов.</p>
+    </div>
+
+    <h3>Что лучше проверить перед финальным запуском</h3>
+    <div class="checklist">
+      <div class="check"><strong>Цены и граммовки</strong><br>Проверить актуальность всех цен, весов и количества порций.</div>
+      <div class="check"><strong>Перевод</strong><br>Сверить казахские названия блюд и составов с финальной версией меню.</div>
+      <div class="check"><strong>Фото</strong><br>Утвердить, какие тестовые фото оставить, а какие заменить на финальные.</div>
+      <div class="check"><strong>Контакты</strong><br>Проверить номера телефона, WhatsApp, TikTok, 2ГИС и режим работы.</div>
+      <div class="check"><strong>Отзывы</strong><br>При желании заменить тестовые тексты отзывов на реальные видео/цитаты гостей.</div>
+      <div class="check"><strong>QR-код</strong><br>После публикации привязать финальную ссылку к QR-коду для столов, Instagram и печатных материалов.</div>
+    </div>
+
+    <p class="small" style="margin-top: 14px;">Итог: сайт уже можно показывать клиенту как рабочий прототип QR-меню. Следующий этап — согласование контента и финальных фото.</p>
+
+    <div class="footer">
+      <span>Fresh Fish QR-меню · текст для клиента</span>
+      <span>27.06.2026</span>
+    </div>
+  </section>
+</body>
+</html>

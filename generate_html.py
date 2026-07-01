@@ -38,9 +38,44 @@ def b64png(filename):
     print(f"  MISSING: {filename}")
     return ""
 
-def img_tag(src, alt=""):
+ORIGINALS = {
+    "sazan": "Сазан.jpeg",
+    "sudak": "Судак.jpeg",
+    "karas_red": "Карась в красном соусе.jpg.jpeg",
+    "sudak_red": "Судак в красном соусе.jpg.jpeg",
+    "dorado_salad": "Дорадо на гриле с салатом.jpg.jpeg",
+    "pizza_margarita": "Маргарита.jpg.jpeg",
+    "pizza_pepperoni": "Пицца Пеперени.jpg.jpeg",
+    "pizza_mushrooms": "пицца с грибами.PNG",
+    "pizza_chicken": "Пицца курица .jpg.jpeg",
+    "pizza_salmon": "Пицца с сёмгой.jpg.jpeg",
+    "hachapuri": "Хачапури.jpg.jpeg",
+    "flatbread": "Лепешки 300 тг.PNG",
+    "tom_yam": "Том Ям.jpg.jpeg",
+    "uha": "УХА.jpg.jpeg",
+    "lemonade_watermelon_pomegranate": "Гранат Арбуз.jpg.jpeg",
+    "lemonade_orange": "Апельсин.jpg.jpeg",
+    "lemonade_kiwi_lime": "Киви лайм.jpg.jpeg",
+    "lemonade_strawberry_lime": "клубника лайм.PNG",
+    "lemonade_mango_passion": "манго маракуйя.PNG",
+    "lemonade_cherry": "вишня.PNG",
+    "lemonade_berry": "ягодный.PNG",
+    "lemonade_kiwi_apple": "киви яблоко.PNG",
+    "lemonade_strawberry_mojito": "клубника мохито.PNG",
+    "lemonade_mojito": "мохито.PNG",
+    "lemonade_pomegranate": "гранат.PNG",
+    "krevetki": "3950 Королевские Криветки.PNG",
+    "korolevskie_krevetki": "3950 Королевские Криветки.PNG",
+}
+
+import urllib.parse
+def img_tag(src, alt="", photo_key=None):
+    highres = ""
+    if photo_key and photo_key in ORIGINALS:
+        encoded = urllib.parse.quote(ORIGINALS[photo_key])
+        highres = f' data-highres="original_photos/{encoded}"'
     if src:
-        return f'<img src="{src}" alt="{alt}" loading="lazy">'
+        return f'<img src="{src}" alt="{alt}" loading="lazy"{highres}>'
     return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;">🐟</div>'
 
 def kz_line(text, extra_style=""):
@@ -59,7 +94,7 @@ def price_tags(prices):
 print("Loading PNGs...")
 names = [
     "sazan","sudak","beliy_amur","som","karas","bersh",
-    "lukovye_kolca","ovoshi_gril","krevetki","krilishki","krilishki_teri",
+    "lukovye_kolca","ovoshi_gril","krevetki","korolevskie_krevetki","krilishki","krilishki_teri",
     "acuchuk","svej_salat","grecheskiy","hrust_baklaj",
     "morskoy_okun","forel_gril","dorado","semga_ris","steyk_semga",
     "karas_red","sudak_red","dorado_salad",
@@ -117,6 +152,7 @@ photo_files = {
     "lukovye_kolca": "луковые кольца.png",
     "ovoshi_gril": "овощи на гриле.png",
     "krevetki": "креветки королевские.png",
+    "korolevskie_krevetki": "Королевские Криветки 3950 тг.png",
     "combo_klassika": "комбо классика.png",
     "combo_lyuks": "комбо люкс.png",
     "combo_shedevr": "комбо шедевр.png",
@@ -141,7 +177,7 @@ WA = "https://api.whatsapp.com/send/?phone=77075832489&text=%D0%97%D0%B4%D1%80%D
 
 def fish_card(card_id, photo_key, name_ru, name_kz, prices):
     """Horizontal card for fish: photo left, info right."""
-    img = img_tag(P[photo_key], name_ru)
+    img = img_tag(P[photo_key], name_ru, photo_key)
     return f"""
   <div class="card card-fish" id="{card_id}">
     <div class="fish-photo">{img}</div>
@@ -153,7 +189,7 @@ def fish_card(card_id, photo_key, name_ru, name_kz, prices):
   </div>"""
 
 def simple_card(card_id, photo_key, name_ru, name_kz, desc, price):
-    img = img_tag(P[photo_key], name_ru)
+    img = img_tag(P[photo_key], name_ru, photo_key)
     return f"""
   <div class="card" id="{card_id}">
     <div class="card-simple">
@@ -180,7 +216,7 @@ def price_card(card_id, name_ru, desc, prices):
   </div>"""
 
 def combo_card(card_id, photo_key, name_ru, name_kz, price, col1, col2):
-    img = img_tag(P[photo_key], name_ru)
+    img = img_tag(P[photo_key], name_ru, photo_key)
     return f"""
   <div class="card card-combo" id="{card_id}">
     <div class="combo-photo">{img}</div>
@@ -198,7 +234,7 @@ def combo_card(card_id, photo_key, name_ru, name_kz, price, col1, col2):
   </div>"""
 
 def set_card(card_id, photo_key, name_ru, name_kz, persons, price, col1, col2):
-    img = img_tag(P[photo_key], name_ru)
+    img = img_tag(P[photo_key], name_ru, photo_key)
     return f"""
   <div class="card card-set" id="{card_id}">
     <div class="set-photo">{img}</div>
@@ -379,6 +415,43 @@ html = f"""<!DOCTYPE html>
     @keyframes rise{{0%{{bottom:-60px;opacity:.05}}100%{{bottom:110%;opacity:0}}}}
 
     .footer{{text-align:center;padding:24px 16px;color:var(--tlight);font-size:11px;line-height:1.6}}
+
+    /* ═══ TAP-TO-ZOOM LIGHTBOX ═══ */
+    .fish-photo,.simple-photo,.combo-photo,.set-photo{{position:relative;cursor:pointer}}
+    .zoom-icon{{
+      position:absolute;bottom:6px;right:6px;width:28px;height:28px;
+      background:rgba(10,37,64,.55);backdrop-filter:blur(4px);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+      pointer-events:none;z-index:2;
+    }}
+    .zoom-icon svg{{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}}
+    .lightbox{{
+      position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;
+      -webkit-tap-highlight-color:transparent;
+    }}
+    .lightbox.open{{opacity:1;visibility:visible}}
+    .lightbox img{{
+      max-width:min(92vw,100%);max-height:85vh;width:auto;height:auto;
+      object-fit:contain;border-radius:16px;
+      background:linear-gradient(135deg,#dff0fa,#b8e0f7);padding:16px;
+      transform:scale(.85);transition:transform .3s cubic-bezier(.25,.1,.25,1);
+      box-shadow:0 12px 48px rgba(0,0,0,.5);
+      image-rendering:auto;
+    }}
+    .lightbox.open img{{transform:scale(1)}}
+    .lightbox-close{{
+      position:absolute;top:16px;right:16px;width:44px;height:44px;
+      background:rgba(255,255,255,.15);border:none;border-radius:50%;
+      color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      backdrop-filter:blur(4px);transition:background .2s;
+    }}
+    .lightbox-close:active{{background:rgba(255,255,255,.3)}}
+    .lightbox-title{{
+      position:absolute;bottom:20px;left:0;right:0;text-align:center;
+      color:#fff;font-size:15px;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.6);
+    }}
   </style>
 </head>
 <body>
@@ -433,7 +506,7 @@ html = f"""<!DOCTYPE html>
     <div><div class="section-title">Горячие блюда</div><div class="section-kz">ЫСТЫҚ ТАҒАМДАР</div></div>
   </div>
   <div class="price-notice">⚖️ Цена зависит от веса рыбы (0.5 кг или 1 кг)</div>
-  {fish_card("c-sazan",  "sazan",       "Сазан",                "Сазан балығы",        [("0.5 кг","3 650"),("1 кг","6 500")])}
+  {fish_card("c-sazan",  "sazan",       "Сазан",                "Сазан балығы",        [("0.5 кг","3 100"),("1 кг","6 000")])}
   {fish_card("c-sudak",  "sudak",       "Судак",                "Кёксерке",            [("0.5 кг","3 350"),("1 кг","6 500")])}
   {fish_card("c-som",    "beliy_amur",  "Белый амур",           "Ақ амур",             [("0.5 кг","3 500"),("1 кг","6 800")])}
   {fish_card("c-som2",   "som",         "Сом",                  "Жайын",               [("0.5 кг","3 100"),("1 кг","6 000")])}
@@ -498,6 +571,7 @@ html = f"""<!DOCTYPE html>
   {simple_card("c-kolca",     "lukovye_kolca","Луковые кольца",        "Пияз сақиналары","10 шт", "1 250")}
   {simple_card("c-gril-veg",  "ovoshi_gril",  "Овощи на гриле",        "Грильдегі көкөністер","350 г","1 550")}
   {simple_card("c-krevetki",  "krevetki",     "Креветки",              "Асшаяндар","350 г","3 550")}
+  {simple_card("c-korolevskie-krevetki", "korolevskie_krevetki", "Королевские креветки", "Патша асшаяндары","350 г","3 950")}
 </section>
 
 <!-- ═══ КОМБО ═══ -->
@@ -699,6 +773,7 @@ html = f"""<!DOCTYPE html>
 </div>
 
 <script>
+  /* ═══ ORIGINAL: Nav + Fade-in ═══ */
   function goTo(id) {{ document.getElementById(id).scrollIntoView({{behavior:'smooth',block:'start'}}); }}
   const secs = ['hot','pizza','soups','wings','salads','combos','sets','sides','lemonades','tea','drinks','reviews','contacts'];
   const btns = document.querySelectorAll('.nav-btn');
@@ -713,6 +788,39 @@ html = f"""<!DOCTYPE html>
   }},{{threshold:0.12}});
   document.querySelectorAll('.card,.review-card').forEach(el=>obs.observe(el));
   secs.forEach(id=>{{const el=document.getElementById(id);if(el)obs.observe(el);}});
+
+  /* ═══ TAP-TO-ZOOM LIGHTBOX ═══ */
+  (function(){{
+    var svgIcon='<div class="zoom-icon"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg></div>';
+    var lb=document.createElement('div');
+    lb.className='lightbox';
+    lb.innerHTML='<button class="lightbox-close">&times;</button><img src="" alt=""><div class="lightbox-title"></div>';
+    document.body.appendChild(lb);
+    var lbImg=lb.querySelector('img');
+    var lbTitle=lb.querySelector('.lightbox-title');
+    var lbClose=lb.querySelector('.lightbox-close');
+
+    function openLb(src,alt){{
+      lbImg.src=src;
+      lbTitle.textContent=alt||'';
+      lb.classList.add('open');
+      document.body.style.overflow='hidden';
+    }}
+    function closeLb(){{
+      lb.classList.remove('open');
+      document.body.style.overflow='';
+      setTimeout(function(){{lbImg.src='';}},300);
+    }}
+    lbClose.addEventListener('click',function(e){{e.stopPropagation();closeLb();}});
+    lb.addEventListener('click',function(e){{if(e.target===lb)closeLb();}});
+
+    document.querySelectorAll('.fish-photo,.simple-photo,.combo-photo,.set-photo').forEach(function(wrap){{
+      var img=wrap.querySelector('img');
+      if(!img)return;
+      wrap.insertAdjacentHTML('beforeend',svgIcon);
+      wrap.addEventListener('click',function(){{openLb(img.getAttribute('data-highres')||img.src,img.alt);}});
+    }});
+  }})();
 </script>
 </body>
 </html>"""
